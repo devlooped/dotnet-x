@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "dotnet-Devlooped": {
+      "commandName": "Project",
+      "commandLineArgs": "@Properties\\launch.rsp"
+    }
+  }
+}

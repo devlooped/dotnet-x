@@ -1,0 +1,36 @@
+[file "src/Directory.Build.props"]
+	url = https://github.com/devlooped/oss/blob/main/src/Directory.Build.props
+	etag = 0fccddf04f282fe98122ab2610dc2972c205a521254559bf013655c6271b0017
+	weak
+[file "src/Directory.Build.targets"]
+	url = https://github.com/devlooped/oss/blob/main/src/Directory.Build.targets
+	etag = 19087699f05396205e6b050d999a43b175bd242f6e8fac86f6df936310178b03
+	weak
+[file ".editorconfig"]
+	url = https://github.com/devlooped/oss/blob/main/.editorconfig
+	etag = 7298c6450967975a8782b5c74f3071e1910fc59686e48f9c9d5cd7c68213cf59
+	weak
+[file ".gitattributes"]
+	url = https://github.com/devlooped/oss/blob/main/.gitattributes
+	etag = 338ba6d92c8d1774363396739c2be4257bfc58026f4b0fe92cb0ae4460e1eff7
+	weak
+[file ".gitignore"]
+	url = https://github.com/devlooped/oss/blob/main/.gitignore
+	etag = c449ec6f76803e1891357ca2b8b4fcb5b2e5deeff8311622fd92ca9fbf1e6575
+	weak
+[file ".github/workflows/build.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/workflows/build.yml
+	etag = ea785d08ab67abc57629649b0a418a515dc58248de12668f3616908873f8ecc6
+	weak
+[file ".github/workflows/dotnet-file.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/workflows/dotnet-file.yml
+	etag = 1ca805a23656e99c03f9d478dba8ccef6e571f5de2ac0e9bb7e3c5216c99a694
+	weak
+[file ".github/dependabot.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/dependabot.yml
+	etag = c147ea2f3431ca0338c315c4a45b56ee233c4d30f8d6ab698d0e1980a257fd6a
+	weak
+[file "src/Tests/Attributes.cs"]
+	url = https://github.com/devlooped/catbag/blob/main/Xunit/Attributes.cs
+	etag = ec1645067cc2319c2ce3304900c260eb8ec700d50b6d8d62285914a6c96e01f9
+	weak

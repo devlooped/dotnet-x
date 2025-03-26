@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>Preview</LangVersion>
+    <UserSecretsId>fd4849ce-1122-4985-b7d3-8a609691bd7f</UserSecretsId>
+    <RootNamespace>Devlooped</RootNamespace>
+
+    <!-- Clear suffix to get clean 42.42.* versions from main for easier install/update -->
+    <VersionSuffix Condition="$(VersionSuffix) == 'main'"></VersionSuffix>
+  </PropertyGroup>
+  
+</Project>
