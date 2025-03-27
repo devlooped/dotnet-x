@@ -23,7 +23,7 @@ public class AuthMessageHandler : DelegatingHandler
     {
         var response = await base.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || 
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
            (response.StatusCode == System.Net.HttpStatusCode.BadRequest && await IsBadAuthenticationDataAsync(response)))
         {
             SignRequest(request, credentials.Value);

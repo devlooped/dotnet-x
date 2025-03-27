@@ -30,7 +30,7 @@ public class LogoutCommand(IAnsiConsole console, ICredentialStore store) : Comma
         return 0;
     }
 
-    public class LogoutSettings: CommandSettings
+    public class LogoutSettings : CommandSettings
     {
         [Description("Specific alias to log out. Removes all accounts if not provided")]
         [CommandArgument(0, "[alias]")]

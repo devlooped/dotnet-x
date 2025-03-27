@@ -23,7 +23,7 @@ static class AuthStoreExtensions
             if (store.Remove(alias))
                 removed.Add(alias);
         }
-        return [..removed];
+        return [.. removed];
     }
 
     public static bool Remove(this ICredentialStore store, string alias)
@@ -62,14 +62,14 @@ static class AuthStoreExtensions
             settings.AccessToken = accessToken;
         if (store.Get("https://api.x.com", $"{alias}:X:AccessTokenSecret") is { Password: { Length: > 0 } accessTokenSecret })
             settings.AccessTokenSecret = accessTokenSecret;
-            if (store.Get("https://api.x.com", $"{alias}:X:ConsumerKey") is { Password: { Length: > 0 } consumerKey })
+        if (store.Get("https://api.x.com", $"{alias}:X:ConsumerKey") is { Password: { Length: > 0 } consumerKey })
             settings.ConsumerKey = consumerKey;
         if (store.Get("https://api.x.com", $"{alias}:X:ConsumerSecret") is { Password: { Length: > 0 } consumerSecret })
             settings.ConsumerSecret = consumerSecret;
 
-        if (settings.AccessToken == null && 
-            settings.AccessTokenSecret == null && 
-            settings.ConsumerKey == null && 
+        if (settings.AccessToken == null &&
+            settings.AccessTokenSecret == null &&
+            settings.ConsumerKey == null &&
             settings.ConsumerSecret == null)
             return null;
 
