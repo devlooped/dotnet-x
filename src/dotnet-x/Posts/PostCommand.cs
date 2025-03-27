@@ -19,19 +19,33 @@ public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) :
         {
             var mediaIds = await UploadMediaAsync(ctx, http, settings.Media);
             ctx.Status("Posting...");
-            var response = await http.PostAsJsonAsync("https://api.twitter.com/2/tweets", new
-            {
-                text = settings.Text,
-                media = new { media_ids = mediaIds }
-            });
+
+            object body = mediaIds.Length == 0 ?
+                new { text = settings.Text } :
+                new { text = settings.Text, media = new { media_ids = mediaIds } };
+
+            var response = await http.PostAsJsonAsync("https://api.twitter.com/2/tweets", body);
             return response;
         });
 
         var json = await response.Content.ReadAsStringAsync();
-        console.Write(new JsonText(json));
 
-        if (!response.IsSuccessStatusCode)
-            return (int)response.StatusCode;
+        if (settings.JQ.IsSet || settings.Json)
+            return console.RenderJson(json, settings);
+
+        var id = await JQ.ExecuteAsync(json, ".data.id");
+        if (id is { Length: > 0 })
+        {
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CI")))
+                console.MarkupLine($"  :check_mark_button: Posted at [link=https://x.com/i/status/{id}]{id}[/]");
+            else
+                console.WriteLine($"Posted: https://x.com/i/status/{id}");
+        }
+        else
+        {
+            settings.Json = true;
+            console.RenderJson(json, "");
+        }
 
         return 0;
     }
@@ -69,7 +83,7 @@ public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) :
     }
 }
 
-public class PostCommandSettings : CommandSettings
+public class PostCommandSettings : JsonCommandSettings
 {
     [Description("Text to post")]
     [CommandArgument(0, "<TEXT>")]
