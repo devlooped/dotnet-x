@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using GitCredentialManager;
 using Microsoft.Extensions.Configuration;
-using NuGet.Configuration;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
