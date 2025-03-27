@@ -5,12 +5,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Spectre.Console.Json;
 
 namespace Devlooped.Posts;
 
 public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) : AsyncCommand<PostCommandSettings>
 {
+    const string MediaEndpointUrl = "https://upload.twitter.com/1.1/media/upload.json";
+    const int ChunkSize = 4 * 1024 * 1024; // 4MB chunk size
+
     public override async Task<int> ExecuteAsync(CommandContext context, PostCommandSettings settings)
     {
         using var http = httpFactory.CreateClient();
@@ -21,7 +23,7 @@ public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) :
             ctx.Status("Posting...");
 
             object body = mediaIds.Length == 0 ?
-                new { text = settings.Text } :
+                new { text = settings.Text } : 
                 new { text = settings.Text, media = new { media_ids = mediaIds } };
 
             var response = await http.PostAsJsonAsync("https://api.twitter.com/2/tweets", body);
@@ -65,21 +67,169 @@ public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) :
 
             ctx.Status($"Uploading {Path.GetFileName(media)}...");
 
-            var mediaContent = new MultipartFormDataContent();
-            var imageContent = new ByteArrayContent(await File.ReadAllBytesAsync(media));
-            imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mediaType);
-            mediaContent.Add(imageContent, "media", Path.GetFileName(media));
+            // For larger files, use chunked upload
+            if (new FileInfo(media).Length > ChunkSize)
+            {
+                var upload = new MediaUploader(ctx, media, mediaType);
+                var mediaId = await upload.UploadAsync(http);
+                if (mediaId is not null)
+                    mediaIds.Add(mediaId);
+            }
+            else
+            {
+                // Small images use the simple upload method
+                var mediaContent = new MultipartFormDataContent();
+                var imageContent = new ByteArrayContent(await File.ReadAllBytesAsync(media));
+                imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mediaType);
+                mediaContent.Add(imageContent, "media", Path.GetFileName(media));
 
-            var response = await http.PostAsync("https://upload.twitter.com/1.1/media/upload.json", mediaContent);
+                var response = await http.PostAsync(MediaEndpointUrl, mediaContent);
+                await response.EnsureSuccessAsync((string? error) => $"Failed to upload media {media}: {error}");
 
-            await response.EnsureSuccessAsync((string? error) => $"Failed to upload media {media}: {error}");
-
-            var mediaResult = await response.Content.ReadFromJsonAsync<JsonElement>();
-            if (mediaResult.GetProperty("media_id_string").GetString() is string mediaId)
-                mediaIds.Add(mediaId);
+                var mediaResult = await response.Content.ReadFromJsonAsync<JsonElement>();
+                if (mediaResult.GetProperty("media_id_string").GetString() is string mediaId)
+                    mediaIds.Add(mediaId);
+            }
         }
 
         return [.. mediaIds];
+    }
+
+    class MediaUploader(StatusContext ctx, string filePath, string mediaType)
+    {
+        readonly long totalBytes = new FileInfo(filePath).Length;
+        readonly string mediaCategory = mediaType.StartsWith("video/") ? "tweet_video" : "tweet_image";
+        readonly string fileName = Path.GetFileName(filePath);
+        string? mediaId;
+        JsonElement? processingInfo;
+
+        public async Task<string?> UploadAsync(HttpClient http)
+        {
+            await InitializeUploadAsync(http);
+            if (mediaId is null)
+                return null;
+                
+            await AppendChunksAsync(http);
+            await FinalizeUploadAsync(http);
+            await CheckStatusAsync(http);
+            
+            return mediaId;
+        }
+
+        async Task InitializeUploadAsync(HttpClient http)
+        {
+            ctx.Status($"Initializing upload for {fileName}...");
+            
+            var requestData = new Dictionary<string, string>
+            {
+                ["command"] = "INIT",
+                ["media_type"] = mediaType,
+                ["total_bytes"] = totalBytes.ToString(),
+                //["media_category"] = mediaCategory
+            };
+            
+            //var response = await http.PostAsync($"{MediaEndpointUrl}?{string.Join("&", requestData.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"))}", null);
+            var response = await http.PostAsync(MediaEndpointUrl, new FormUrlEncodedContent(requestData));
+            await response.EnsureSuccessAsync((string? error) => $"Failed to initialize media upload for {fileName}: {error}");
+            
+            var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+            mediaId = result.GetProperty("media_id_string").GetString();
+            
+            ctx.Status($"Media ID: {mediaId}");
+        }
+
+        async Task AppendChunksAsync(HttpClient http) 
+        {
+            int segmentId = 0;
+            long bytesSent = 0;
+
+            using var file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var buffer = new byte[ChunkSize];
+            int bytesRead;
+            
+            while ((bytesRead = await file.ReadAsync(buffer)) > 0)
+            {
+                var percentComplete = (double)bytesSent / totalBytes * 100;
+                ctx.Status($"Uploading {fileName}... ({percentComplete:0.0}% complete)");
+                
+                bytesSent += bytesRead;
+                
+                var content = new MultipartFormDataContent
+                {
+                    { new StringContent("APPEND"), "command" },
+                    { new StringContent(mediaId!), "media_id" },
+                    { new StringContent(segmentId.ToString()), "segment_index" }
+                };
+                
+                var mediaChunk = new ByteArrayContent(buffer, 0, bytesRead);
+                mediaChunk.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+                content.Add(mediaChunk, "media");
+                
+                var response = await http.PostAsync(MediaEndpointUrl, content);
+                await response.EnsureSuccessAsync((string? error) => $"Failed to upload {fileName}: {error}");
+                
+                segmentId++;
+            }
+        }
+
+        async Task FinalizeUploadAsync(HttpClient http)
+        {
+            ctx.Status("Finalizing upload...");
+            
+            var requestData = new Dictionary<string, string>
+            {
+                ["command"] = "FINALIZE",
+                ["media_id"] = mediaId!
+            };
+            
+            var response = await http.PostAsync($"{MediaEndpointUrl}?{string.Join("&", requestData.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"))}", null);
+            await response.EnsureSuccessAsync((string? error) => $"Failed to finalize upload for {fileName}: {error}");
+            
+            var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (result.TryGetProperty("processing_info", out var info))
+                processingInfo = info;
+        }
+
+        async Task CheckStatusAsync(HttpClient http, int retryCount = 0)
+        {
+            if (processingInfo is null)
+                return;
+                
+            var state = processingInfo.Value.GetProperty("state").GetString();
+            ctx.Status($"Media processing status: {state}");
+            
+            if (string.Equals(state, "succeeded", StringComparison.OrdinalIgnoreCase))
+                return;
+                
+            if (string.Equals(state, "failed", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("Media processing failed");
+            
+            if (retryCount > 10) // Limit retries to avoid infinite loops
+                throw new Exception("Media processing timeout");
+                
+            if (processingInfo.Value.TryGetProperty("check_after_secs", out var checkAfterProperty))
+            {
+                var checkAfterSecs = checkAfterProperty.GetInt32();
+                ctx.Status($"Waiting {checkAfterSecs} seconds before checking status again...");
+                await Task.Delay(TimeSpan.FromSeconds(checkAfterSecs));
+                
+                var requestParams = new Dictionary<string, string>
+                {
+                    ["command"] = "STATUS",
+                    ["media_id"] = mediaId!
+                };
+                
+                var response = await http.GetAsync($"{MediaEndpointUrl}?{string.Join("&", requestParams.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"))}");
+                await response.EnsureSuccessAsync((string? error) => $"Failed to check media status for {fileName}: {error}");
+                
+                var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+                if (result.TryGetProperty("processing_info", out var info))
+                {
+                    processingInfo = info;
+                    await CheckStatusAsync(http, retryCount + 1);
+                }
+            }
+        }
     }
 }
 
