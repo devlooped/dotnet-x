@@ -15,7 +15,7 @@ static class HttpExtensions
         try
         {
             var errorResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
-            if (errorResponse.GetProperty("error").GetString() is string errorMessage)
+            if (errorResponse.TryGetProperty("error", out var error) && error.GetString() is string errorMessage)
                 throw new Exception(formatError(errorMessage));
             else
                 throw new Exception(formatError(null));

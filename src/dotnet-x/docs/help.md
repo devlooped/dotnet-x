@@ -1,4 +1,15 @@
 ﻿```shell
 > x --help
-Error: The option 'media' has an optional value but does not implement 
-IFlagValue.
+USAGE:
+    x [OPTIONS] <COMMAND>
+
+EXAMPLES:
+    x post "Hello, world!" --media path/to/image.png
+
+OPTIONS:
+    -h, --help    Prints help information
+
+COMMANDS:
+    auth            
+    post <TEXT>     
+```

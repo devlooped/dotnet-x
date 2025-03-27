@@ -7,7 +7,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Spectre.Console.Json;
 
-namespace Devlooped;
+namespace Devlooped.Posts;
 
 public class PostCommand(IHttpClientFactory httpFactory, IAnsiConsole console) : AsyncCommand<PostCommandSettings>
 {
@@ -75,7 +75,7 @@ public class PostCommandSettings : CommandSettings
     [CommandArgument(0, "<TEXT>")]
     public required string Text { get; set; }
 
-    [MediaTypeDescription("One or more media files to attach to the post")]
+    [MediaTypeDescription("Zero or more media files to attach to the post")]
     [CommandOption("-m|--media <MEDIA>")]
     public MediaList Media { get; set; } = [];
 

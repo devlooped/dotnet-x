@@ -3,9 +3,11 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using GitCredentialManager;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Devlooped;
@@ -21,11 +23,16 @@ public static class App
     public static CommandApp Create(out IServiceProvider services)
     {
         var collection = new ServiceCollection();
+        var credentials = CredentialManager.Create(ThisAssembly.Project.PackageId);
 
         var configuration = new ConfigurationBuilder()
+            .AddEnvironmentVariables(prefix: "X_")
             .AddEnvironmentVariables()
+            .AddCredentialStore(credentials)
+#if DEBUG
             .AddUserSecrets<TypeRegistrar>()
-            .AddDotNetConfig()
+#endif
+            //.AddDotNetConfig()
             .Build();
 
         collection.AddSingleton(configuration)
@@ -34,7 +41,8 @@ public static class App
             .AddSingleton<IValidateOptions<AuthOptions>, AuthOptionsValidation>()
             .AddTransient<AuthMessageHandler>()
             .AddSingleton(shutdownCancellation)
-            .AddSingleton(JsonOptions.Default);
+            .AddSingleton(JsonOptions.Default)
+            .AddSingleton(_ => credentials);
 
         collection.AddHttpClient()
             .ConfigureHttpClientDefaults(defaults =>
@@ -57,10 +65,12 @@ public static class App
         app.Configure(config =>
         {
             config.SetApplicationName(ThisAssembly.Project.ToolCommandName);
-            config.AddCommand<PostCommand>("post");
             if (Environment.GetEnvironmentVariables().Contains("NO_COLOR"))
                 config.Settings.HelpProviderStyles = null;
         });
+
+        app.UseAuth();
+        app.UsePosts();
 
         services = registrar.Services.BuildServiceProvider();
 

@@ -7,16 +7,17 @@ namespace Devlooped;
 
 public class AuthMessageHandler : DelegatingHandler
 {
-    readonly AuthOptions credentials;
+    readonly Lazy<AuthOptions> credentials;
 
-    public AuthMessageHandler(AuthOptions credentials) => this.credentials = ValidateOptions(credentials);
-
-    // Options are already validated by the AuthOptionsValidation
-    public AuthMessageHandler(IOptions<AuthOptions> options) => credentials = options.Value;
+    public AuthMessageHandler(AuthOptions credentials) => this.credentials = new Lazy<AuthOptions>(ValidateOptions(credentials));
 
     // Options are already validated by the AuthOptionsValidation
-    public AuthMessageHandler(IOptions<AuthOptions> options, HttpMessageHandler innerHandler) : base(innerHandler)
-        => credentials = options.Value;
+    public AuthMessageHandler(IOptionsMonitor<AuthOptions> options)
+        => credentials = new Lazy<AuthOptions>(() => options.CurrentValue);
+
+    // Options are already validated by the AuthOptionsValidation
+    public AuthMessageHandler(IOptionsMonitor<AuthOptions> options, HttpMessageHandler innerHandler) : base(innerHandler)
+        => credentials = new Lazy<AuthOptions>(() => options.CurrentValue);
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -25,7 +26,7 @@ public class AuthMessageHandler : DelegatingHandler
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || 
            (response.StatusCode == System.Net.HttpStatusCode.BadRequest && await IsBadAuthenticationDataAsync(response)))
         {
-            SignRequest(request, credentials);
+            SignRequest(request, credentials.Value);
             return await base.SendAsync(request, cancellationToken);
         }
 

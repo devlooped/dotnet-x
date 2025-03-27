@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Devlooped;
 
-public class AuthOptions
+public class AuthOptions : IAuthSettings
 {
     public required string ConsumerKey { get; set; }
     public required string ConsumerSecret { get; set; }
@@ -15,22 +15,29 @@ public class AuthOptionsValidation(IConfiguration configuration) : IValidateOpti
 {
     public ValidateOptionsResult Validate(string? name, AuthOptions options)
     {
-        if (!configuration.GetSection("X").Exists())
-            return ValidateOptionsResult.Fail("Configuration section 'X' is missing.");
-
+        // Brings in the configuration from the X_ "section" from envvars by prefix
+        configuration.Bind(options);
         return Validate(options);
     }
 
     public static ValidateOptionsResult Validate(AuthOptions options)
     {
+        var failures = new List<string>();
+
         if (options.ConsumerKey == null)
-            return ValidateOptionsResult.Fail($"Missing X:ConsumerKey configuration");
+            failures.Add("Missing X:ConsumerKey configuration");
         if (options.ConsumerSecret == null)
-            return ValidateOptionsResult.Fail($"Missing X:ConsumerSecret configuration");
+            failures.Add("Missing X:ConsumerSecret configuration");
         if (options.AccessToken == null)
-            return ValidateOptionsResult.Fail($"Missing X:AccessToken configuration");
+            failures.Add("Missing X:AccessToken configuration");
         if (options.AccessTokenSecret == null)
-            return ValidateOptionsResult.Fail($"Missing X:AccessTokenSecret configuration");
+            failures.Add("Missing X:AccessTokenSecret configuration");
+
+        if (failures.Count > 0)
+        {
+            failures.Insert(0, "You are not logged in");
+            return ValidateOptionsResult.Fail(failures);
+        }
 
         return ValidateOptionsResult.Success;
     }
