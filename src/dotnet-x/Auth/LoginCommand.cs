@@ -26,7 +26,7 @@ namespace Devlooped.Auth;
           X_ConsumerKey: ${{ secrets.X_CONSUMER_KEY }}
           X_ConsumerSecret: ${{ secrets.X_CONSUMER_SECRET }}
         run: |
-          dotnet tool update -g dotnet-x 
+          dotnet tool update -g dotnet-xcli 
           x post "Hello, world!" --media image.png
     """)]
 public class LoginCommand(ICommandApp app, ICredentialStore store, IConfiguration configuration) : AsyncCommand<LoginCommand.LoginSettings>
