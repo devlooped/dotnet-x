@@ -5,7 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Devlooped</RootNamespace>
 
-    <PackageId>dotnet-x</PackageId>
+    <PackageId>X</PackageId>
     <Description>X CLI: manage posts from the command prompt</Description>
     <ToolCommandName>x</ToolCommandName>
   </PropertyGroup>
