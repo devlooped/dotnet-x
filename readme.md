@@ -9,7 +9,7 @@
 <!-- #content -->
 
 This CLI allows you to manage your personal posts from the command line. 
-It requires creating a project and app on the X Developer Portal to generate the necessary API keys and secrets.
+It requires creating a project and app on the [X Developer Portal](https://developer.x.com/en/portal/dashboard) to generate the necessary API keys and secrets.
 
 ## Usage
 
