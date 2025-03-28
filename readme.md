@@ -65,7 +65,7 @@ For example, to use x in GitHub Actions:
       X_ConsumerKey: ${{ secrets.X_CONSUMER_KEY }}
       X_ConsumerSecret: ${{ secrets.X_CONSUMER_SECRET }}
     run: |
-      dotnet tool update -g dotnet-x 
+      dotnet tool update -g dotnet-xcli 
       x post "Hello, world!" --media image.png
 
 USAGE:
