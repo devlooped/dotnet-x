@@ -1,8 +1,8 @@
 ![Icon](assets/img/logo.png) A CLI for X
 ============
 
-[![Version](https://img.shields.io/nuget/vpre/dotnet-xcli.svg?color=royalblue)](https://www.nuget.org/packages/dotnet-xcli)
-[![Downloads](https://img.shields.io/nuget/dt/dotnet-xcli.svg?color=green)](https://www.nuget.org/packages/dotnet-xcli)
+[![Version](https://img.shields.io/nuget/vpre/dotnet-x.svg?color=royalblue)](https://www.nuget.org/packages/dotnet-x)
+[![Downloads](https://img.shields.io/nuget/dt/dotnet-x.svg?color=green)](https://www.nuget.org/packages/dotnet-x)
 [![License](https://img.shields.io/github/license/devlooped/dotnet-x.svg?color=blue)](https://github.com//devlooped/dotnet-x/blob/main/license.txt)
 [![Build](https://github.com/devlooped/dotnet-x/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/devlooped/dotnet-x/actions/workflows/build.yml)
 
@@ -65,7 +65,7 @@ For example, to use x in GitHub Actions:
       X_ConsumerKey: ${{ secrets.X_CONSUMER_KEY }}
       X_ConsumerSecret: ${{ secrets.X_CONSUMER_SECRET }}
     run: |
-      dotnet tool update -g dotnet-xcli 
+      dotnet tool update -g dotnet-x 
       x post "Hello, world!" --media image.png
 
 USAGE:
