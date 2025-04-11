@@ -42,9 +42,9 @@
 	sha = e0be248fff1d39133345283b8227372b36574b75
 [file ".github/workflows/build.yml"]
 	url = https://github.com/devlooped/oss/blob/main/.github/workflows/build.yml
-	etag = ea785d08ab67abc57629649b0a418a515dc58248de12668f3616908873f8ecc6
+	etag = fb2e91cdc9fb7a4d3e8f698e525816c5d8febb35b005c278eecca8056e78f809
 	weak
-	sha = 931da830a361d69b419887a0edbb424517ca75fc
+	sha = 08c70776943839f73dbea2e65355108747468508
 [file ".github/workflows/dotnet-file.yml"]
 	url = https://github.com/devlooped/oss/blob/main/.github/workflows/dotnet-file.yml
 	etag = 1ca805a23656e99c03f9d478dba8ccef6e571f5de2ac0e9bb7e3c5216c99a694
@@ -87,6 +87,36 @@
 	weak
 [file ".github/workflows/publish.yml"]
 	url = https://github.com/devlooped/oss/blob/main/.github/workflows/publish.yml
-	sha = 931da830a361d69b419887a0edbb424517ca75fc
-	etag = 62a13b8b34b1b265cdc045bf7ea001dee7bdc184cba7abfea5fe77283cf419a6
+	sha = 08c70776943839f73dbea2e65355108747468508
+	etag = 722a2c7cb3a42bc24ca7fb48d2e9a336641ed0599418239e24efbafccf64bd50
+	weak
+[file ".github/actions/dotnet/action.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/actions/dotnet/action.yml
+	sha = 08c70776943839f73dbea2e65355108747468508
+	etag = a5f1fa7f652cc2c2e13b7c236e5f8403aea26667d6a040c84ef976af267af6ab
+	weak
+[file ".github/release.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/release.yml
+	sha = 0c23e24704625cf75b2cb1fdc566cef7e20af313
+	etag = 310df162242c95ed19ed12e3c96a65f77e558b46dced676ad5255eb12caafe75
+	weak
+[file ".github/workflows/triage.yml"]
+	url = https://github.com/devlooped/oss/blob/main/.github/workflows/triage.yml
+	sha = 33000c0c4ab4eb4e0e142fa54515b811a189d55c
+	etag = 013a47739e348f06891f37c45164478cca149854e6cd5c5158e6f073f852b61a
+	weak
+[file "Directory.Build.rsp"]
+	url = https://github.com/devlooped/oss/blob/main/Directory.Build.rsp
+	sha = 0f7f7f7e8a29de9b535676f75fe7c67e629a5e8c
+	etag = 0ccae83fc51f400bfd7058170bfec7aba11455e24a46a0d7e6a358da6486e255
+	weak
+[file "license.txt"]
+	url = https://github.com/devlooped/oss/blob/main/license.txt
+	sha = 0683ee777d7d878d4bf013d7deea352685135a05
+	etag = 2c6335b37e4ae05eea7c01f5d0c9d82b49c488f868a8b5ba7bff7c6ff01f3994
+	weak
+[file "src/nuget.config"]
+	url = https://github.com/devlooped/oss/blob/main/src/nuget.config
+	sha = 032439dbf180fca0539a5bd3a019f18ab3484b76
+	etag = da7c0104131bd474b52fc9bc9f9bda6470e24ae38d4fb9f5c4f719bc01370ab5
 	weak
