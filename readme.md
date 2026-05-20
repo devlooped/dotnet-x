@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/github/license/devlooped/dotnet-x.svg?color=blue)](https://github.com//devlooped/dotnet-x/blob/main/license.txt)
 [![Build](https://github.com/devlooped/dotnet-x/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/devlooped/dotnet-x/actions/workflows/build.yml)
 
+> ARCHIVED: X now has an [official CLI](https://github.com/xdevplatform/xurl)
+
 <!-- #content -->
 
 This CLI allows you to manage your personal posts from the command line. 
